@@ -1,11 +1,12 @@
 import 'package:velocity_x/velocity_x.dart';
 
 class AppStore extends VxStore {
-  var mazeNodes = List.generate(17, (i) => List.generate(13, (j) => 0));
+  int x = 27, y = 19;
+  var mazeNodes = List.generate(27, (i) => List.generate(19, (j) => 0));
   int starti = 1, startj = 1;
-  int endi = 15, endj = 11;
+  int endi = 25, endj = 17;
   bool stop = false;
-  int x = 17, y = 13;
+  int speed = 5000;
 }
 
 class ChangeVal extends VxMutation<AppStore> {
@@ -28,9 +29,22 @@ class ChangeStop extends VxMutation<AppStore> {
   }
 }
 
-class Refresh extends VxMutation<AppStore> {
+class ChangeSpeed extends VxMutation<AppStore> {
+  final int val;
+  ChangeSpeed(this.val);
   @override
   perform() {
+    store.speed += val;
+  }
+}
+
+class Refresh extends VxMutation<AppStore> {
+  final int val;
+
+  Refresh(this.val);
+  @override
+  perform() {
+    store.speed = val;
     store.stop = !store.stop;
     for (int i = 0; i < store.x; i++)
       for (int j = 0; j < store.y; j++)

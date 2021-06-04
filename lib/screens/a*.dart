@@ -38,8 +38,8 @@ List<Point> stack = <Point>[];
 
 class AStar extends StatelessWidget {
   static String routname = "/A*";
-  int numberInRow = 13;
-  int numberOfSquares = 13 * 17;
+  int numberInRow = 19;
+  int numberOfSquares = 19 * 27;
   @override
   Widget build(BuildContext context) {
     VxState.watch(context, on: [
@@ -49,6 +49,7 @@ class AStar extends StatelessWidget {
       ChangeStart,
       ChangeEnd,
       ChangeVal1,
+      ChangeSpeed,
       ChangeStop,
       Refresh
     ]);
@@ -58,7 +59,7 @@ class AStar extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            flex: 5,
+            flex: 3,
             child: Container(
               child: GridView.builder(
                   physics: NeverScrollableScrollPhysics(),
@@ -68,31 +69,37 @@ class AStar extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
                       onTap: () {
-                        if (!store.stop) ChangeVal(index ~/ 13, index % 13);
+                        if (!store.stop)
+                          ChangeVal(index ~/ numberInRow, index % numberInRow);
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(0.3),
                         child: Container(
-                          color: store.mazeNodes[index ~/ 13][index % 13] == 0
+                          color: store.mazeNodes[index ~/ numberInRow]
+                                      [index % numberInRow] ==
+                                  0
                               ? Colors.grey
-                              : store.mazeNodes[index ~/ 13][index % 13] == 4
-                                  ? Colors.purple
-                                  : store.mazeNodes[index ~/ 13][index % 13] ==
+                              : store.mazeNodes[index ~/ numberInRow]
+                                          [index % numberInRow] ==
+                                      4
+                                  ? Colors.blue[100]
+                                  : store.mazeNodes[index ~/ numberInRow]
+                                              [index % numberInRow] ==
                                           5
                                       ? Colors.lightBlue
-                                      : store.mazeNodes[index ~/ 13]
-                                                  [index % 13] ==
+                                      : store.mazeNodes[index ~/ numberInRow]
+                                                  [index % numberInRow] ==
                                               6
                                           ? Colors.yellow
-                                          : Colors.indigoAccent,
-                          child: (store.starti == index ~/ 13 &&
-                                  store.startj == index % 13)
+                                          : Colors.grey[800],
+                          child: (store.starti == index ~/ numberInRow &&
+                                  store.startj == index % numberInRow)
                               ? Draggable(
                                   data: 2,
                                   child: Container(
                                     child: Center(
                                       child: Icon(Icons.location_pin,
-                                          size: 15, color: Colors.white),
+                                          size: 13, color: Colors.white),
                                     ),
                                     color: Colors.pink,
                                   ),
@@ -110,14 +117,14 @@ class AStar extends StatelessWidget {
                                   ),
                                   childWhenDragging: Container(),
                                 )
-                              : (store.endi == index ~/ 13 &&
-                                      store.endj == index % 13)
+                              : (store.endi == index ~/ numberInRow &&
+                                      store.endj == index % numberInRow)
                                   ? Draggable(
                                       data: 3,
                                       child: Container(
                                         child: Center(
                                           child: Icon(Icons.location_searching,
-                                              size: 15, color: Colors.white),
+                                              size: 13, color: Colors.white),
                                         ),
                                         color: Colors.orange,
                                       ),
@@ -135,7 +142,8 @@ class AStar extends StatelessWidget {
                                       ),
                                       childWhenDragging: Container(),
                                     )
-                                  : store.mazeNodes[index ~/ 13][index % 13] ==
+                                  : store.mazeNodes[index ~/ numberInRow]
+                                                  [index % numberInRow] ==
                                               0 &&
                                           !store.stop
                                       ? DragTarget(
@@ -151,9 +159,11 @@ class AStar extends StatelessWidget {
                                           onAccept: (data) {
                                             data == 2
                                                 ? ChangeStart(
-                                                    index ~/ 13, index % 13)
+                                                    index ~/ numberInRow,
+                                                    index % numberInRow)
                                                 : ChangeEnd(
-                                                    index ~/ 13, index % 13);
+                                                    index ~/ numberInRow,
+                                                    index % numberInRow);
                                           },
                                         )
                                       : null,
@@ -166,16 +176,72 @@ class AStar extends StatelessWidget {
           Expanded(
             child: ListTile(
               title: store.stop
-                  ? InkWell(
-                      onTap: () {
-                        ChangeStop();
-                      },
-                      child: Container(
-                        child: Center(
-                          child:
-                              Icon(Icons.pause, size: 50, color: Colors.white),
+                  ? Container(
+                      margin: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
                         ),
                         color: Colors.orange[900],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Speed",
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.grey[50],
+                            ),
+                          ),
+                          Text(
+                            double.parse(
+                                    (10000 / store.speed).toStringAsFixed(2))
+                                .toString(),
+                            style: TextStyle(
+                              fontSize: 50.0,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RawMaterialButton(
+                                child: Icon(Icons.remove),
+                                onPressed: () => ChangeSpeed(100),
+                                constraints: BoxConstraints.tightFor(
+                                    width: 56.0, height: 56.0),
+                                shape: CircleBorder(),
+                                fillColor: Colors.grey[50],
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              RawMaterialButton(
+                                child: Icon(
+                                  Icons.pause,
+                                  color: Colors.grey[50],
+                                ),
+                                onPressed: () => ChangeStop(),
+                                constraints: BoxConstraints.tightFor(
+                                    width: 56.0, height: 56.0),
+                                shape: CircleBorder(),
+                                fillColor: Colors.black,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              RawMaterialButton(
+                                child: Icon(Icons.add),
+                                onPressed: () => ChangeSpeed(-100),
+                                constraints: BoxConstraints.tightFor(
+                                    width: 56.0, height: 56.0),
+                                shape: CircleBorder(),
+                                fillColor: Colors.grey[50],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     )
                   : Row(
@@ -199,7 +265,7 @@ class AStar extends StatelessWidget {
                               }),
                             ),
                             onPressed: () async {
-                              Refresh();
+                              Refresh(1000);
                               removeWall(Point a, Point b) {
                                 int gridi = a.i * 2 + 1;
                                 int gridj = a.j * 2 + 1;
@@ -251,8 +317,8 @@ class AStar extends StatelessWidget {
                                 }
                               }
 
-                              x = 17 ~/ 2;
-                              y = 13 ~/ 2;
+                              x = 27 ~/ 2;
+                              y = numberInRow ~/ 2;
                               int totalNodes = x * y;
                               mazeNodes = List.generate(
                                   x, (i) => List.generate(y, (j) => 0));
@@ -278,7 +344,7 @@ class AStar extends StatelessWidget {
                                   current = stack.removeLast();
                                 }
                                 await Future.delayed(
-                                    Duration(milliseconds: 50));
+                                    Duration(microseconds: store.speed));
                               }
                               if (store.stop) ChangeStop();
                             },
@@ -302,9 +368,9 @@ class AStar extends StatelessWidget {
                               }),
                             ),
                             onPressed: () async {
-                              Refresh();
-                              x = 17;
-                              y = 13;
+                              Refresh(5000);
+                              x = 27;
+                              y = numberInRow;
                               List<int> d = [1, 0, -1, 0, 1];
                               visited = List.generate(
                                   x, (i) => List.generate(y, (j) => false));
@@ -329,7 +395,7 @@ class AStar extends StatelessWidget {
                                     ChangeVal1(k.i, k.j, 6);
                                     path.removeLast();
                                     await Future.delayed(
-                                        Duration(milliseconds: 30));
+                                        Duration(microseconds: 2000));
                                   }
                                   break;
                                 }
@@ -348,7 +414,7 @@ class AStar extends StatelessWidget {
                                   }
                                 }
                                 await Future.delayed(
-                                    Duration(milliseconds: 50));
+                                    Duration(microseconds: store.speed));
                               }
                               if (store.stop) ChangeStop();
                             },
@@ -372,8 +438,8 @@ class AStar extends StatelessWidget {
                               }),
                             ),
                             onPressed: () {
-                              for (int i = 0; i < 17; i++)
-                                for (int j = 0; j < 13; j++)
+                              for (int i = 0; i < 27; i++)
+                                for (int j = 0; j < numberInRow; j++)
                                   if (store.mazeNodes[i][j] > 0)
                                     ChangeVal1(i, j, 0);
                             },
