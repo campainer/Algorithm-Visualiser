@@ -8,7 +8,9 @@ int x, y;
 
 class Point {
   final int i, j;
+  Point parent = null;
   Point(this.i, this.j);
+  Point.withParent(this.i, this.j, this.parent);
   Point pickNeighbor() {
     List<Point> neighbors = <Point>[];
     if (j > 0 && !visited[i][j - 1]) {
@@ -69,9 +71,20 @@ class AStar extends StatelessWidget {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                          Backtrcking(store: store),
-                          Run(store: store),
-                          Clear(store: store),
+                          Column(
+                            children: [
+                              RecursiveMaze(store: store),
+                              SizedBox(height: 20),
+                              Backtrcking(store: store),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Run(store: store),
+                              SizedBox(height: 20),
+                              Clear(store: store),
+                            ],
+                          )
                         ]),
             ),
           ),
@@ -214,8 +227,8 @@ class Run extends StatelessWidget {
         }),
       ),
       onPressed: () async {
-        Refresh(1000, true);
-        x = 27;
+        Refresh(1000, 1);
+        x = store.x;
         y = store.y;
         List<int> d = [1, 0, -1, 0, 1];
         visited = List.generate(x, (i) => List.generate(y, (j) => false));
@@ -288,7 +301,7 @@ class Backtrcking extends StatelessWidget {
         }),
       ),
       onPressed: () async {
-        Refresh(1000, true);
+        Refresh(1000, 1);
         removeWall(Point a, Point b) {
           int gridi = a.i * 2 + 1;
           int gridj = a.j * 2 + 1;
@@ -494,6 +507,99 @@ class Block extends StatelessWidget {
                       : null,
         ),
       ),
+    );
+  }
+}
+
+class RecursiveMaze extends StatelessWidget {
+  const RecursiveMaze({
+    Key key,
+    @required this.store,
+  }) : super(key: key);
+
+  final AppStore store;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.disabled)) return Colors.red;
+          return null; // Defer to the widget's default.
+        }),
+        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.disabled)) return Colors.blue;
+          return null; // Defer to the widget's default.
+        }),
+      ),
+      onPressed: () async {
+        Refresh(1000, 0);
+        List<Point> queue = <Point>[];
+
+        var rand = math.Random.secure();
+
+        void drawHorizontalWall(int pos, int start, int finish, bool passage) {
+          int hole = -1;
+          if (passage) {
+            hole = rand.nextInt((finish - start) ~/ 2) * 2 + start;
+          }
+          for (var i = start; i <= finish; i++) {
+            if (i != hole) {
+              queue.add(new Point(i, pos));
+            }
+          }
+        }
+
+        void drawVerticalWall(int pos, int start, int finish, bool passage) {
+          int hole = -1;
+          if (passage) {
+            hole = rand.nextInt((finish - start) ~/ 2) * 2 + start;
+          }
+          for (var i = start; i <= finish; i++) {
+            if (i != hole) {
+              //onShowWall(pos,i);
+              queue.add(new Point(pos, i));
+            }
+          }
+        }
+
+        void drawEdges() {
+          drawVerticalWall(0, 0, store.y - 1, false);
+          drawVerticalWall(store.x - 1, 0, store.y - 1, false);
+          drawHorizontalWall(0, 0, store.x - 1, false);
+          drawHorizontalWall(store.y - 1, 0, store.x - 1, false);
+        }
+
+        void chooseWall(int left, int right, int top, int bottom) {
+          if (right - left < 2 || top - bottom < 2) {
+            return;
+          }
+          bool isHorizontal = rand.nextBool();
+          if (isHorizontal) {
+            int y = rand.nextInt((top - bottom) ~/ 2) * 2 + 1 + bottom;
+            print(right);
+            drawHorizontalWall(y, left, right, true);
+            chooseWall(left, right, top, y + 1);
+            chooseWall(left, right, y - 1, bottom);
+          } else {
+            int x = rand.nextInt((right - left) ~/ 2) * 2 + 1 + left;
+            drawVerticalWall(x, bottom, top, true);
+            chooseWall(x + 1, right, top, bottom);
+            chooseWall(left, x - 1, top, bottom);
+          }
+        }
+
+        drawEdges();
+        chooseWall(1, store.x - 2, store.y - 2, 1);
+        for (var i = 0; i < queue.length && store.stop; i++) {
+          ShowWall(queue.elementAt(i).i, queue.elementAt(i).j);
+          await Future.delayed(Duration(microseconds: store.speed));
+        }
+        if (store.stop) ChangeStop();
+      },
+      child: Text('Recursive Maze'),
     );
   }
 }

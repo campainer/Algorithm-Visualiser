@@ -1,3 +1,5 @@
+import 'package:project/screens/a*.dart';
+
 class Node {
   Node(this.i, this.j, this.p, int endi, int endj, this.parent) {
     h = (i - endi).abs() + (j - endj).abs();
@@ -65,5 +67,29 @@ class PriorityQueue {
 
   Node top() {
     return A[0];
+  }
+}
+
+class Queue {
+  List<Point> A = <Point>[];
+  int id = 0;
+  size() {
+    return A.length - id;
+  }
+
+  bool empty() {
+    return size() == 0;
+  }
+
+  void push(Point key) {
+    A.add(key);
+  }
+
+  void pop() {
+    id++;
+  }
+
+  Point front() {
+    return A[id];
   }
 }

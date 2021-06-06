@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:project/App_store.dart';
 import 'package:project/home_icon_buttoms.dart';
+import 'package:project/screens/Dixtras.dart';
+import 'package:project/screens/Sorting.dart';
 import 'package:project/screens/a*.dart';
+import 'package:project/screens/doubleDixtras.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 void main() {
-  runApp(VxState(
-    store: AppStore(),
-    child: MyApp()));
+  runApp(VxState(store: AppStore(), child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -30,6 +31,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => MyHomePage(),
         // When navigating to the "/second" route, build the SecondScreen widget.
         AStar.routname: (context) => AStar(),
+        Dixtras.routname: (context) => Dixtras(),
+        DoubleDixtras.routname: (context) => DoubleDixtras(),
+        Sorting.routname: (context) => Sorting(),
       },
     );
   }
@@ -93,20 +97,28 @@ class MyHomePage extends StatelessWidget {
                             crossAxisCount: 2,
                             children: <Widget>[
                               CatigoryW(
+                                image: 'images/Icon2.png',
+                                text: 'Dixtras',
+                                color: Color(0xFFA885FF),
+                                routname: Dixtras.routname,
+                              ),
+                              CatigoryW(
                                 image: 'images/Icon1.png',
-                                text: 'General',
+                                text: 'A* Algo',
                                 color: Color(0xFF47B4FF),
                                 routname: AStar.routname,
                               ),
                               CatigoryW(
                                 image: 'images/Icon2.png',
-                                text: 'Transport',
+                                text: 'Double Dixtras',
                                 color: Color(0xFFA885FF),
+                                routname: DoubleDixtras.routname,
                               ),
                               CatigoryW(
                                 image: 'images/Icon3.png',
-                                text: 'Shopping',
+                                text: 'Sorting',
                                 color: Color(0xFFFD47DF),
+                                routname: Sorting.routname,
                               ),
                               CatigoryW(
                                 image: 'images/Icon4.png',

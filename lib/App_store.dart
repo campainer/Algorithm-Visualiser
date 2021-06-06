@@ -37,7 +37,9 @@ class Create extends VxMutation<AppStore> {
   @override
   perform() {
     store.x = (h * 0.6) ~/ 18;
+    if (store.x % 2 == 0) store.x++;
     store.y = w ~/ 18;
+    if (store.y % 2 == 0) store.y++;
     store.stop = false;
     store.mazeNodes =
         List.generate(store.x, (i) => List.generate(store.y, (j) => 0));
@@ -54,17 +56,17 @@ class ChangeSpeed extends VxMutation<AppStore> {
 }
 
 class Refresh extends VxMutation<AppStore> {
-  final int val;
-  final bool stopval;
+  final int val, val1;
+  final bool stopval = true;
 
-  Refresh(this.val, this.stopval);
+  Refresh(this.val, this.val1);
   @override
   perform() {
     store.speed = val;
     store.stop = stopval;
     for (int i = 0; i < store.x; i++)
       for (int j = 0; j < store.y; j++)
-        if (store.mazeNodes[i][j] > 1) store.mazeNodes[i][j] = 0;
+        if (store.mazeNodes[i][j] > val1) store.mazeNodes[i][j] = 0;
   }
 }
 
